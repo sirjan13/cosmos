@@ -4,23 +4,24 @@ using namespace std;
 /*
  * Part of Cosmos by OpenGenus Foundation
 */
-int n=9;
 
-bool isPossible(int mat[][9],int i,int j,int no){
-    ///Row or col should not have no
-    for(int x=0;x<n;x++){
-        if(mat[x][j]==no||mat[i][x]==no){
+int n = 9;
+
+bool isPossible(int mat[][9], int curr_row, int curr_col, int num){
+    ///Row or col should not have number
+    for(int x=0; x < n; x++){
+        if(mat[x][curr_row] == num || mat[curr_col][x] == num){
             return false;
         }
     }
 
-    /// Subgrid should not have no
-    int sx = (i/3)*3;
-    int sy = (j/3)*3;
+    /// Subgrid should not have number
+    int first_row_subgrid = (curr_row/3)*3;
+    int first_col_subgrid = (curr_col/3)*3;
 
-    for(int x=sx;x<sx+3;x++){
-        for(int y=sy;y<sy+3;y++){
-            if(mat[x][y]==no){
+    for(int x=first_row_subgrid; x < first_row_subgrid + 3; x++){
+        for(int y=first_col_subgrid; y < first_col_subgrid + 3; y++){
+            if(mat[x][y] == num){
                 return false;
             }
         }
@@ -28,72 +29,76 @@ bool isPossible(int mat[][9],int i,int j,int no){
 
     return true;
 }
+
 void printMat(int mat[][9]){
+    for(int row=0; row < n; row++){
+        for(int col=0; col < n; col++){
+            cout << mat[row][col] << " ";
 
-    for(int i=0;i<n;i++){
-        for(int j=0;j<n;j++){
-            cout<<mat[i][j]<<" ";
-            if((j+1)%3==0){
-                cout<<'\t';
+            if((col+1)%3 == 0){
+                cout << '\t';
             }
+        }
 
+        if((row+1)%3 == 0){
+            cout << endl;
         }
-         if((i+1)%3==0){
-                cout<<endl;
-        }
-            cout<<endl;
+
+        cout << endl;
     }
 }
 
-
-bool solveSudoku(int mat[][9],int i,int j){
+bool solveSudoku(int mat[][9], int curr_row, int curr_col){
     ///Base Case
-    if(i==9){
+    if(curr_row == 9){
         printMat(mat);
         return true;
     }
 
-    ///Crossed the last  Cell in the row
-    if(j==9){
-        return solveSudoku(mat,i+1,0);
+    ///Crossed the last Cell in the row
+    if(curr_col == 9){
+        return solveSudoku(mat, curr_row+1, 0);
     }
 
     ///Skip if filled cell
-    if(mat[i][j]!=0){
-        return solveSudoku(mat,i,j+1);
+    if(mat[curr_row][curr_col] != 0){
+        return solveSudoku(mat, curr_row, curr_col+1);
     }
+
     ///White Cell
-    ///Try to place every possible no
-    for(int no=1;no<=9;no++){
-        if(isPossible(mat,i,j,no)){
-            ///Place the no - assuming solution is possible with this
-            mat[i][j] = no;
-            bool isSolve=solveSudoku(mat,i,j+1);
-            if(isSolve){
+    ///Try to place every possible number
+    for(int num=1; num <= 9; num++){
+        if(isPossible(mat, curr_row, curr_col, num)){
+            ///Place the number - assuming solution is possible with this
+            mat[curr_row][curr_col] = num;
+            bool isSolved = solveSudoku(mat, curr_row, curr_col+1);
+            if(isSolved){
                 return true;
             }
-            ///loop will place the next no.
+            ///loop will place the next number
         }
     }
+
     ///Backtracking
-    mat[i][j] = 0;
+    mat[curr_row][curr_col] = 0;
     return false;
 }
 
 int main(){
+    int mat[9][9] =
+            {{5,3,0,0,7,0,0,0,0},
+             {6,0,0,1,9,5,0,0,0},
+             {0,9,8,0,0,0,0,6,0},
+             {8,0,0,0,6,0,0,0,3},
+             {4,0,0,8,0,3,0,0,1},
+             {7,0,0,0,2,0,0,0,6},
+             {0,6,0,0,0,0,2,8,0},
+             {0,0,0,4,1,9,0,0,5},
+             {0,0,0,0,8,0,0,7,9}};
 
-	int mat[9][9] =
-        	{{5,3,0,0,7,0,0,0,0},
-       	 	{6,0,0,1,9,5,0,0,0},
-		{0,9,8,0,0,0,0,6,0},
-		{8,0,0,0,6,0,0,0,3},
-		{4,0,0,8,0,3,0,0,1},
-		{7,0,0,0,2,0,0,0,6},
-		{0,6,0,0,0,0,2,8,0},
-		{0,0,0,4,1,9,0,0,5},
-		{0,0,0,0,8,0,0,7,9}};
-	printMat(mat);
-	cout<<"Solution "<<endl;
-	solveSudoku(mat,0,0);
-return 0;
+    printMat(mat);
+    cout << "Solution" << endl;
+    solveSudoku(mat, 0, 0);
+
+    return 0;
 }
